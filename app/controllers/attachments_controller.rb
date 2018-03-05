@@ -2,7 +2,7 @@ class AttachmentsController < ApplicationController
   include PublicDocumentRoutesHelper
 
   def show
-    if attachment_visible?
+    if upload_exists?(upload_path) && attachment_visibility.visible?
       expires_headers
       send_file_for_mime_type
     else
@@ -23,10 +23,6 @@ class AttachmentsController < ApplicationController
   end
 
 private
-
-  def attachment_visible?
-    upload_exists?(upload_path) && attachment_visibility.visible?
-  end
 
   def link_rel_headers
     if (edition = attachment_visibility.visible_edition)
