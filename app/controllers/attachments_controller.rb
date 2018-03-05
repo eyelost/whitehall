@@ -66,10 +66,6 @@ private
     @attachment_visibility ||= AttachmentVisibility.new(attachment_data, current_user)
   end
 
-  def file_is_clean?(path)
-    path.starts_with?(Whitehall.clean_uploads_root)
-  end
-
   def image?(path)
     ['.jpg', '.jpeg', '.png', '.gif'].include?(File.extname(path))
   end
@@ -103,6 +99,6 @@ private
   end
 
   def clean?
-    File.exist?(upload_path) && file_is_clean?(upload_path)
+    File.exist?(upload_path) && upload_path.starts_with?(Whitehall.clean_uploads_root)
   end
 end
