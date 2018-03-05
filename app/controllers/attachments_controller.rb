@@ -73,11 +73,6 @@ private
     ['.jpg', '.jpeg', '.png', '.gif'].include?(File.extname(upload_path))
   end
 
-  def unscanned?
-    path = upload_path.sub(Whitehall.clean_uploads_root, Whitehall.incoming_uploads_root)
-    File.exist?(path)
-  end
-
   def mime_type_for(path)
     Mime::Type.lookup_by_extension(File.extname(path).from(1).downcase)
   end
@@ -99,6 +94,11 @@ private
     else
       send_file real_path_for_x_accel_mapping(upload_path), disposition: 'inline'
     end
+  end
+
+  def unscanned?
+    path = upload_path.sub(Whitehall.clean_uploads_root, Whitehall.incoming_uploads_root)
+    File.exist?(path)
   end
 
   def clean?
