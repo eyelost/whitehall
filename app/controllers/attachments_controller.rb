@@ -2,7 +2,7 @@ class AttachmentsController < ApplicationController
   include PublicDocumentRoutesHelper
 
   def show
-    if clean?(upload_path) && attachment_visibility.visible?
+    if clean? && attachment_visibility.visible?
       expires_headers
       send_file_for_mime_type
     else
@@ -51,7 +51,7 @@ private
   end
 
   def upload_path
-    File.join(Whitehall.clean_uploads_root, path_to_attachment_or_thumbnail)
+    @upload_path ||= File.join(Whitehall.clean_uploads_root, path_to_attachment_or_thumbnail)
   end
 
   def file_with_extensions
@@ -102,7 +102,7 @@ private
     end
   end
 
-  def clean?(path)
-    File.exist?(path) && file_is_clean?(path)
+  def clean?
+    File.exist?(upload_path) && file_is_clean?(upload_path)
   end
 end
