@@ -6,7 +6,18 @@ class AttachmentsController < ApplicationController
       expires_headers
       send_file_for_mime_type
     else
-      fail
+      if (edition = attachment_visibility.unpublished_edition)
+        redirect_to edition.unpublishing.document_path
+      elsif (replacement = attachment_data.replaced_by)
+        expires_headers
+        redirect_to replacement.url, status: 301
+      elsif image? upload_path
+        redirect_to view_context.path_to_image('thumbnail-placeholder.png')
+      elsif incoming_upload_exists? upload_path
+        redirect_to_placeholder
+      else
+        render plain: "Not found", status: :not_found
+      end
     end
     link_rel_headers
   end
@@ -15,21 +26,6 @@ private
 
   def attachment_visible?
     upload_exists?(upload_path) && attachment_visibility.visible?
-  end
-
-  def fail
-    if (edition = attachment_visibility.unpublished_edition)
-      redirect_to edition.unpublishing.document_path
-    elsif (replacement = attachment_data.replaced_by)
-      expires_headers
-      redirect_to replacement.url, status: 301
-    elsif image? upload_path
-      redirect_to view_context.path_to_image('thumbnail-placeholder.png')
-    elsif incoming_upload_exists? upload_path
-      redirect_to_placeholder
-    else
-      render plain: "Not found", status: :not_found
-    end
   end
 
   def link_rel_headers
