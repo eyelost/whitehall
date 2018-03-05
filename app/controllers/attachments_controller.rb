@@ -19,8 +19,8 @@ class AttachmentsController < ApplicationController
     end
 
     expires_headers
-    send_file_for_mime_type
     link_rel_headers
+    send_file_for_mime_type
   end
 
 private
