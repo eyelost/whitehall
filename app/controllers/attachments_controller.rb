@@ -2,10 +2,7 @@ class AttachmentsController < ApplicationController
   include PublicDocumentRoutesHelper
 
   def show
-    if clean? && attachment_visibility.visible?
-      expires_headers
-      send_file_for_mime_type
-    else
+    unless clean? && attachment_visibility.visible?
       if (edition = attachment_visibility.unpublished_edition)
         redirect_to edition.unpublishing.document_path
       elsif (replacement = attachment_data.replaced_by)
@@ -18,7 +15,11 @@ class AttachmentsController < ApplicationController
       else
         render plain: "Not found", status: :not_found
       end
+      return
     end
+
+    expires_headers
+    send_file_for_mime_type
     link_rel_headers
   end
 
