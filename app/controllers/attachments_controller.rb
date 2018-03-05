@@ -13,7 +13,7 @@ class AttachmentsController < ApplicationController
         redirect_to replacement.url, status: 301
       elsif image?
         redirect_to view_context.path_to_image('thumbnail-placeholder.png')
-      elsif incoming_upload_exists? upload_path
+      elsif unscanned? upload_path
         redirect_to_placeholder
       else
         render plain: "Not found", status: :not_found
@@ -70,7 +70,7 @@ private
     ['.jpg', '.jpeg', '.png', '.gif'].include?(File.extname(upload_path))
   end
 
-  def incoming_upload_exists?(path)
+  def unscanned?(path)
     path = path.sub(Whitehall.clean_uploads_root, Whitehall.incoming_uploads_root)
     File.exist?(path)
   end
