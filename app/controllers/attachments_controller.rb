@@ -2,6 +2,11 @@ class AttachmentsController < ApplicationController
   include PublicDocumentRoutesHelper
 
   def show
+    if infected?
+      render plain: "Not found", status: :not_found
+      return
+    end
+
     unless clean? && attachment_visibility.visible?
       if (edition = attachment_visibility.unpublished_edition)
         redirect_to edition.unpublishing.document_path
@@ -98,6 +103,11 @@ private
 
   def unscanned?
     path = upload_path.sub(Whitehall.clean_uploads_root, Whitehall.incoming_uploads_root)
+    File.exist?(path)
+  end
+
+  def infected?
+    path = upload_path.sub(Whitehall.clean_uploads_root, Whitehall.infected_uploads_root)
     File.exist?(path)
   end
 
