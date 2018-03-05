@@ -8,10 +8,12 @@ class AttachmentsController < ApplicationController
       elsif (replacement = attachment_data.replaced_by)
         expires_headers
         redirect_to replacement.url, status: 301
-      elsif image?
-        redirect_to view_context.path_to_image('thumbnail-placeholder.png')
       elsif unscanned?
-        redirect_to_placeholder
+        if image?
+          redirect_to view_context.path_to_image('thumbnail-placeholder.png')
+        else
+          redirect_to_placeholder
+        end
       else
         render plain: "Not found", status: :not_found
       end

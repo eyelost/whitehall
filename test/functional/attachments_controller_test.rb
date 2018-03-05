@@ -9,13 +9,29 @@ class AttachmentsControllerTest < ActionController::TestCase
     File.basename(attachment_data.filename, '.' + attachment_data.file_extension)
   end
 
-  test "attachment documents that aren't visible and haven't been replaced are redirected to the placeholder url" do
+  test 'respond with 404 Not Found when infected attachment document is requested' do
+    attachment_data = create(:attachment_data)
+    VirusScanHelpers.simulate_virus_scan_infected(attachment_data.file)
+    get_show attachment_data
+
+    assert_response :not_found
+  end
+
+  test 'respond with 404 Not Found when infected attachment image is requested' do
+    image_attachment_data = create(:image_attachment_data)
+    VirusScanHelpers.simulate_virus_scan_infected(image_attachment_data.file)
+    get_show image_attachment_data
+
+    assert_response :not_found
+  end
+
+  test 'redirect to placeholder URL when unscanned attachment document is requested' do
     get_show create(:attachment_data)
 
     assert_redirected_to placeholder_url
   end
 
-  test "attachment images that aren't visible and haven't been replaced are redirected to the placeholder image" do
+  test 'redirect to placeholder image when unscanned attachment image is requested' do
     get_show create(:image_attachment_data)
 
     assert_redirected_to @controller.view_context.path_to_image('thumbnail-placeholder.png')
