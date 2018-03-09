@@ -42,10 +42,8 @@ class Unpublishing < ApplicationRecord
     unpublishing_reason.as_sentence
   end
 
-  # Because the edition may have been deleted, we override the slug in case it
-  # has bee pre-fixed with 'deleted-'
   def document_path
-    Whitehall.url_maker.public_document_path(edition, id: slug)
+    Whitehall.url_maker.public_document_path(edition)
   end
 
   # Because the edition may have been deleted, we need to find it unscoped to

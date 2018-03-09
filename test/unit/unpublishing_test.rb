@@ -130,21 +130,6 @@ class UnpublishingTest < ActiveSupport::TestCase
     assert_equal original_path, unpublishing.document_path
   end
 
-  test '#document_path returns the URL for a deleted unpublished edition' do
-    edition = create(:detailed_guide)
-    original_path = Whitehall.url_maker.public_document_path(edition)
-    unpublishing = create(:unpublishing, edition: edition,
-                          unpublishing_reason: UnpublishingReason::PublishedInError)
-
-
-    EditionDeleter.new(edition).perform!
-    # The default scope on Edition stops deleted editions being found when an
-    # unpublishing is loaded. To trigger the bug we need to reload.
-    unpublishing.reload
-
-    assert_equal original_path, unpublishing.document_path
-  end
-
   test '#translated_locales is delegated to the edition' do
     edition = create(:case_study)
     I18n.with_locale(:es) do
