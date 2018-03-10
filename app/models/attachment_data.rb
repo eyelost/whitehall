@@ -177,11 +177,11 @@ private
   end
 
   def significant_attachable
-    significant_attachment.attachable
+    significant_attachment.attachable || NullAttachable.new
   end
 
   def last_attachable
-    last_attachment.attachable
+    last_attachment.attachable || NullAttachable.new
   end
 
   def significant_attachment
