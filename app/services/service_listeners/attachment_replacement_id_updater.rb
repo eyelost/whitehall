@@ -13,7 +13,7 @@ module ServiceListeners
     def update!
       return unless attachment_data.present?
 
-      return unless attachment_data.replaced_by.present?
+      return unless attachment_data.replaced?
       replacement = attachment_data.replaced_by
 
       enqueue_job(attachment_data.file, replacement.file)
