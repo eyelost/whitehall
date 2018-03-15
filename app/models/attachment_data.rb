@@ -167,14 +167,18 @@ class AttachmentData < ApplicationRecord
   end
 
   def last_publicly_visible_attachment
-    attachments.reverse.detect { |a| (a.attachable || Attachable::Null.new).publicly_visible? }
+    attachments_with_attachable.reverse.detect { |a| a.attachable.publicly_visible? }
   end
 
   def last_attachment
-    attachments.reverse.detect { |a| a.attachable.present? } || Attachment::Null.new
+    attachments_with_attachable.last || Attachment::Null.new
   end
 
 private
+
+  def attachments_with_attachable
+    attachments.select { |attachment| attachment.attachable.present? }
+  end
 
   def cant_be_replaced_by_self
     return if replaced_by.nil?
