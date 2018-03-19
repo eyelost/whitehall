@@ -78,12 +78,6 @@ class Edition::LimitedAccessTest < ActiveSupport::TestCase
     end
   end
 
-  test '#access_limited_object returns self' do
-    edition = LimitedAccessEdition.new
-
-    assert_equal edition, edition.access_limited_object
-  end
-
   test 'is not accessible if no user specified' do
     edition = LimitedAccessEdition.new
 

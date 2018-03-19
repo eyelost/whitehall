@@ -9,12 +9,8 @@ class PolicyGroup < ApplicationRecord
   validates_with SafeHtmlValidator
   validates_with NoFootnotesInGovspeakValidator, attribute: :description
 
-  def access_limited_object
+  def authorized_uuids
     nil
-  end
-
-  def access_limited?
-    false
   end
 
   def publicly_visible?

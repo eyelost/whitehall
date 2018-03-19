@@ -117,12 +117,8 @@ class AttachmentData < ApplicationRecord
     significant_attachable.accessible_to?(user)
   end
 
-  def access_limited?
-    last_attachable.access_limited?
-  end
-
-  def access_limited_object
-    last_attachable.access_limited_object
+  def authorized_uuids
+    last_attachable.authorized_uuids
   end
 
   def unpublished?

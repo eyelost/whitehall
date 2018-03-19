@@ -40,16 +40,6 @@ class PolicyGroupTest < ActiveSupport::TestCase
     assert_published_policies_returns_all_tagged_policies(policy_group)
   end
 
-  test '#access_limited? returns false' do
-    policy_group = FactoryBot.build(:policy_group)
-    refute policy_group.access_limited?
-  end
-
-  test '#access_limited_object returns nil' do
-    policy_group = FactoryBot.build(:policy_group)
-    assert_nil policy_group.access_limited_object
-  end
-
   test 'is always publicly visible' do
     policy_group = FactoryBot.build(:policy_group)
     assert policy_group.publicly_visible?

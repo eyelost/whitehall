@@ -49,10 +49,6 @@ module Edition::LimitedAccess
     end
   end
 
-  def access_limited_object
-    self
-  end
-
   def access_limited?
     read_attribute(:access_limited)
   end
@@ -69,5 +65,11 @@ module Edition::LimitedAccess
 
   def accessible_to?(user)
     user.present? && self.class.accessible_to(user).where(id: id).any?
+  end
+
+  def authorized_uuids
+    if access_limited? && !publicly_visible?
+      User.where(organisation: organisations).pluck(:uid).compact
+    end
   end
 end

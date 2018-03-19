@@ -100,8 +100,8 @@ class AttachmentDataVisibilityTest < ActiveSupport::TestCase
                   new_edition.save!
                 end
 
-                it 'is access limited' do
-                  assert attachment_data.reload.access_limited?
+                it 'returns published edition as last attachable' do
+                  assert_equal edition, attachment_data.reload.last_attachable
                 end
               end
             end

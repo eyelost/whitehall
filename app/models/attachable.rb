@@ -35,16 +35,8 @@ module Attachable
       false
     end
 
-    def access_limited?
-      false
-    end
-
-    def access_limited_object
+    def authorized_uuids
       nil
-    end
-
-    def organisations
-      []
     end
 
     def unpublished?

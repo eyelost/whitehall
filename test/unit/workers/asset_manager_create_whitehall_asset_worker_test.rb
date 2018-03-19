@@ -68,13 +68,11 @@ class AssetManagerCreateWhitehallAssetWorkerTest < ActiveSupport::TestCase
     @worker.perform(@file.path, @legacy_url_path, true, consultation.class.to_s, consultation.id)
   end
 
-  test 'does not mark attachments belonging to policy groups as access limited' do
-    organisation = FactoryBot.create(:organisation)
-    FactoryBot.create(:user, organisation: organisation, uid: 'user-uid')
+  test 'marks attachments belonging to policy groups as not access limited' do
     policy_group = FactoryBot.create(:policy_group)
     attachment = FactoryBot.create(:file_attachment, attachable: policy_group)
 
-    Services.asset_manager.expects(:create_whitehall_asset).with(Not(has_key(:access_limited)))
+    Services.asset_manager.expects(:create_whitehall_asset).with(has_entry(access_limited: []))
 
     @worker.perform(@file.path, @legacy_url_path, true, attachment.attachment_data.class.to_s, attachment.attachment_data.id)
   end
