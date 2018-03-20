@@ -9,10 +9,14 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
   let(:managing_editor) { create(:managing_editor) }
   let(:filename) { 'sample.docx' }
   let(:file) { File.open(path_to_attachment(filename)) }
-  let(:attachment) { build(:file_attachment, attachable: edition, file: file) }
+  let(:attachment) { build(:file_attachment, title: 'attachment-title', attachable: edition, file: file) }
   let(:asset_id) { 'asset-id' }
 
+  let(:replacement_filename) { 'sample.rtf' }
+  let(:replacement_asset_id) { 'replacement-asset-id' }
+
   before do
+    create(:government)
     login_as(managing_editor)
     edition.attachments << attachment
     setup_publishing_api_for(edition)
@@ -24,9 +28,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
     let(:edition) { create(:news_article) }
 
     context 'when attachment is replaced' do
-      let(:replacement_filename) { 'sample.rtf' }
-      let(:replacement_asset_id) { 'replacement-asset-id' }
-
       before do
         visit admin_news_article_path(edition)
         click_link 'Modify attachments'
@@ -58,6 +59,74 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
         Services.asset_manager.expects(:update_asset)
           .with(asset_id, 'replacement_id' => replacement_asset_id)
         AssetManagerAttachmentReplacementIdUpdateWorker.drain
+      end
+    end
+  end
+
+  context 'given a published document with file attachment' do
+    let(:edition) { create(:published_news_article) }
+
+    context 'when new draft is created' do
+      before do
+        publishing_api_has_linkables([], document_type: 'topic')
+        visit admin_news_article_path(edition)
+        click_button 'Create new edition to edit'
+        click_link 'Attachments 1'
+        @attachment_url = find('.existing-attachments a', text: filename)[:href]
+        within '.existing-attachments' do
+          click_link 'Edit'
+        end
+        attach_file 'Replace file', path_to_attachment(replacement_filename)
+        click_button 'Save'
+        assert_text "Attachment 'attachment-title' updated"
+        VirusScanHelpers.simulate_virus_scan
+      end
+
+      it 'does not redirect requests for attachment to replacement' do
+        logout
+
+        get @attachment_url
+        assert_response :ok
+      end
+
+      it 'does not update replacement_id for attachment in Asset Manager' do
+        Services.asset_manager.expects(:update_asset)
+          .with(asset_id, 'replacement_id' => replacement_asset_id)
+          .never
+        AssetManagerAttachmentReplacementIdUpdateWorker.drain
+      end
+
+      context 'and draft edition is published' do
+        before do
+          AssetManagerAttachmentReplacementIdUpdateWorker.drain
+
+          click_link 'Document'
+          fill_in 'Public change note', with: 'attachment replaced'
+          click_button 'Save'
+          assert_text 'The document has been saved'
+
+          click_link 'Modify attachments'
+          @replacement_url = find('.existing-attachments a', text: replacement_filename)[:href]
+
+          visit admin_news_article_path(edition.latest_edition)
+          click_link 'Force publish'
+          fill_in 'Reason for force publishing', with: 'testing'
+          click_button 'Force publish'
+          assert_text %r{The document .* has been published}
+        end
+
+        it 'redirects requests for attachment to replacement' do
+          logout
+
+          get @attachment_url
+          assert_redirected_to @replacement_url
+        end
+
+        it 'updates replacement_id for attachment in Asset Manager' do
+          Services.asset_manager.expects(:update_asset)
+            .with(asset_id, 'replacement_id' => replacement_asset_id)
+          AssetManagerAttachmentReplacementIdUpdateWorker.drain
+        end
       end
     end
   end

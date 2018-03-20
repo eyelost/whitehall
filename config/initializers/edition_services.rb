@@ -22,6 +22,10 @@ Whitehall.edition_services.tap do |coordinator|
       ServiceListeners::AttachmentLinkHeaderUpdater
         .new(attachment.attachment_data)
         .update!
+p [edition.id]
+      ServiceListeners::AttachmentReplacementIdUpdater
+        .new(attachment.attachment_data)
+        .update!
     end
   end
 
