@@ -34,7 +34,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
       before do
         visit admin_news_article_path(edition)
         click_link 'Modify attachments'
-        @attachment_url = find('.existing-attachments a', text: filename)[:href]
         within '.existing-attachments' do
           click_link 'Edit'
         end
@@ -45,17 +44,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
 
         VirusScanHelpers.simulate_virus_scan
         stub_whitehall_asset(replacement_filename, id: replacement_asset_id)
-      end
-
-      it 'redirects requests for attachment to replacement' do
-        visit admin_news_article_path(edition)
-        click_link 'Modify attachments'
-        replacement_url = find('.existing-attachments a', text: replacement_filename)[:href]
-
-        logout
-
-        get @attachment_url
-        assert_redirected_to replacement_url
       end
 
       # We rely on Asset Manager to do the redirect immediately in this case,
@@ -77,7 +65,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
         visit admin_news_article_path(edition)
         click_button 'Create new edition to edit'
         click_link 'Attachments 1'
-        @attachment_url = find('.existing-attachments a', text: filename)[:href]
         within '.existing-attachments' do
           click_link 'Edit'
         end
@@ -88,13 +75,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
         stub_whitehall_asset(replacement_filename, id: replacement_asset_id)
       end
 
-      it 'does not redirect requests for attachment to replacement' do
-        logout
-
-        get @attachment_url
-        assert_response :ok
-      end
-
       # We rely on Asset Manager *not* to do the redirect, even though the
       # asset is marked as replaced, because the replacement is not yet
       # visible to the user.
@@ -102,36 +82,6 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
         Services.asset_manager.expects(:update_asset)
           .with(asset_id, 'replacement_id' => replacement_asset_id)
         AssetManagerAttachmentReplacementIdUpdateWorker.drain
-      end
-
-      context 'and draft edition is published' do
-        before do
-          AssetManagerAttachmentReplacementIdUpdateWorker.drain
-
-          click_link 'Document'
-          fill_in 'Public change note', with: 'attachment replaced'
-          click_button 'Save'
-          assert_text 'The document has been saved'
-
-          click_link 'Modify attachments'
-          @replacement_url = find('.existing-attachments a', text: replacement_filename)[:href]
-
-          visit admin_news_article_path(edition.latest_edition)
-          click_link 'Force publish'
-          fill_in 'Reason for force publishing', with: 'testing'
-          click_button 'Force publish'
-          assert_text %r{The document .* has been published}
-        end
-
-        it 'redirects requests for attachment to replacement' do
-          logout
-
-          get @attachment_url
-          assert_redirected_to @replacement_url
-        end
-
-        # We rely on Asset Manager to do the redirect setup previously
-        # (see above), now that the asset *is* publicly available.
       end
     end
   end
