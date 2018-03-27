@@ -431,11 +431,19 @@ class Edition < ApplicationRecord
     false
   end
 
-  def can_be_tagged_to_taxonomy?
+  def can_edit_new_taxonomy?
     false
   end
 
-  def must_be_tagged_to_taxonomy?
+  def can_edit_old_taxonomy?
+    true
+  end
+
+  def autofill_new_taxonomy?
+    false
+  end
+
+  def autofill_old_taxonomy?
     false
   end
 

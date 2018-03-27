@@ -72,7 +72,7 @@ class Admin::EditionsController < Admin::BaseController
   def show
     fetch_version_and_remark_trails
 
-    if @edition.can_be_tagged_to_taxonomy?
+    if @edition.can_edit_new_taxonomy?
       @edition_taxons = EditionTaxonsFetcher.new(@edition.content_id).fetch
     end
   end

@@ -11,6 +11,6 @@ class TaxonValidator < ActiveModel::Validator
 private
 
   def missing_taxons?(edition)
-    edition.must_be_tagged_to_taxonomy? && !edition.has_been_tagged?
+    edition.must_have_a_new_taxon? && !edition.has_been_tagged?
   end
 end
