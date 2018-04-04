@@ -130,3 +130,7 @@ group :cucumber, :test do
   gem 'launchy'
   gem 'poltergeist'
 end
+
+group :asset_audit do
+  gem 'mechanize'
+end
