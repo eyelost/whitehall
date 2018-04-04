@@ -133,6 +133,27 @@ class AttachmentReplacementIntegrationTest < ActionDispatch::IntegrationTest
         # We rely on Asset Manager to do the redirect setup previously
         # (see above), now that the asset *is* publicly available.
       end
+
+      context 'and draft edition is discarded' do
+        before do
+          AssetManagerAttachmentReplacementIdUpdateWorker.drain
+
+          click_link 'Document'
+          fill_in 'Public change note', with: 'attachment replaced'
+          click_button 'Save'
+          assert_text 'The document has been saved'
+
+          click_button 'Discard draft'
+          assert_text "The document 'news-title' has been deleted"
+        end
+
+        it 'serves original attachment not replacement' do
+          logout
+
+          get @attachment_url
+          assert_response :ok
+        end
+      end
     end
   end
 
