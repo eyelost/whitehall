@@ -1,4 +1,5 @@
 class RoleAppointment < ApplicationRecord
+  include PublishesToPublishingApi
   include MinisterialRole::MinisterialRoleReindexingConcern
 
   CURRENT_CONDITION = { ended_at: nil }.freeze
